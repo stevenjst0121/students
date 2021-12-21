@@ -21,7 +21,7 @@ class Person:
         mobile: int,
         wechat: str,
         email: str,
-        id_: str,
+        id: str,
         city: str,
         address: str,
         profile: Profile,
@@ -33,7 +33,7 @@ class Person:
         self.mobile = mobile
         self.wechat = wechat
         self.email = email
-        self.id = id_
+        self.id = id
         self.city = city
         self.address = address
         self.profile = profile

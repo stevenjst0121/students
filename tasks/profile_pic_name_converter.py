@@ -1,28 +1,17 @@
 import os
 import sys
-import logging
+import shutil
 
 import pandas
 
-# TODO
-sys.path.append("/Users/sitengjin/dev/home/cathy/students")
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from utils.excel_manager import ExcelReader, ExcelWriter
 from utils.person import Person, Sex
 from utils.logger import get_logger, setup_logging
 from utils.validation import is_name_valid, is_id_valid
 from utils.profile import Profile
-from utils.constants import DATA_PATH, OUTPUT_PATH
-
-
-# Constants
-JSJ_DATA_FILENAME = "jsj_data.xlsx"
-JSJ_DATA_FILEPATH = os.path.join(DATA_PATH, JSJ_DATA_FILENAME)
-JSJ_DATA_FILENAME_FINAL = "jsj_data_final.xlsx"
-OUTPUT_PATH_ID = os.path.join(OUTPUT_PATH, "id")
-OUTPUT_PATH_NAME_ID = os.path.join(OUTPUT_PATH, "name_id")
-JSJ_DATA_FILEPATH_FINAL_ID = os.path.join(OUTPUT_PATH_ID, JSJ_DATA_FILENAME_FINAL)
-JSJ_DATA_FILEPATH_FINAL_NAME_ID = os.path.join(OUTPUT_PATH_NAME_ID, JSJ_DATA_FILENAME_FINAL)
+from utils.constants import *
 
 
 class DataManager:
@@ -62,7 +51,7 @@ class DataManager:
             try:
                 name = row["姓名"]
                 id = row["身份证号码"]
-                profile_filename = row["2寸蓝底照片"]
+                profile_filename = str(row["2寸蓝底照片"]) if not row.isnull()["2寸蓝底照片"] else None
 
                 person = Person(
                     series=int(row["序号"]),
@@ -78,18 +67,36 @@ class DataManager:
                     profile=Profile(name, id, profile_filename),
                 )
 
+                # Data validation, only log error and continue
+
+                # THIS IS BAD
+                # Only name and ID is checked here, even there is no profile picture,
+                # it will still occur in the final result
+                if not is_name_valid(person.name):
+                    logger.error(f"[Data Validation] Invalid name, {person}")
+                    self.invalid_count += 1
+                    continue
+                elif not is_id_valid(person.id):
+                    logger.error(f"[Data Validation] Invalid ID, {person}")
+                    self.invalid_count += 1
+                    continue
+
                 # De-duplication
                 if person.id in self.data:
                     old_series = self.data[person.id].series
                     if person.series > old_series:
-                        logger.debug(
+                        logger.info(
                             f"Overwriting duplicate record, old series={old_series}, "
                             f"new series={person.series}, {person}"
                         )
+                        self.data[person.id] = person
                     else:
                         logger.info(f"Dropping duplicate record, {person}")
                     self.duplicate_count += 1
                     continue
+
+                else:
+                    self.data[person.id] = person
             except KeyError as e:
                 logger.error(
                     f"Column name mismatch! Check whether the column names have been changed in {JSJ_DATA_FILENAME}."
@@ -98,25 +105,16 @@ class DataManager:
             except Exception as e:
                 logger.exception(e)
 
-            # Data validation, only log error and continue
-            if not is_name_valid(person.name):
-                logger.error(f"[Data Validation] Invalid name, {person}")
-                self.invalid_count += 1
-            elif not is_id_valid(person.id):
-                logger.error(f"[Data Validation] Invalid ID, {person}")
-                self.invalid_count += 1
-            else:
-                self.data[person.id] = person
-
     def generate_output_files(self):
         self._mk_dir_if_not_exist(OUTPUT_PATH)
 
-        # Generate jsj_data_final.xlsx
         # ID Only
         self._generate_xlsx_file(id_only=True)
+        self._copy_profile_files(id_only=True)
 
         # Name + ID
         self._generate_xlsx_file(id_only=False)
+        self._copy_profile_files(id_only=False)
 
     def _generate_xlsx_file(self, id_only: bool):
         if id_only:
@@ -159,6 +157,34 @@ class DataManager:
             logger.info(f"Creating directory {path}")
             os.mkdir(path)
 
+    def _copy_profile_files(self, id_only: bool):
+        if id_only:
+            self._mk_dir_if_not_exist(OUTPUT_PATH_ID_PICTURES)
+            for _, person in self.data.items():
+                profile = person.profile
+
+                # THIS IS BAD
+                # Hard-coded logic to skip copying if there is no profile picture
+                if not profile.is_valid():
+                    continue
+
+                src_file_path = os.path.join(PICTURES_PATH, profile.raw_filename)
+                dst_file_path = os.path.join(OUTPUT_PATH_ID_PICTURES, profile.id_filename)
+                shutil.copyfile(src=src_file_path, dst=dst_file_path)
+        else:
+            self._mk_dir_if_not_exist(OUTPUT_PATH_NAME_ID_PICTURES)
+            for _, person in self.data.items():
+                profile = person.profile
+
+                # THIS IS BAD
+                # Hard-coded logic to skip copying if there is no profile picture
+                if not profile.is_valid():
+                    continue
+
+                src_file_path = os.path.join(PICTURES_PATH, profile.raw_filename)
+                dst_file_path = os.path.join(OUTPUT_PATH_NAME_ID_PICTURES, profile.name_id_filename)
+                shutil.copyfile(src=src_file_path, dst=dst_file_path)
+
     def log_read_summary(self):
         logger = get_logger()
 
@@ -166,10 +192,10 @@ class DataManager:
         logger.info(f"Total record parsed: {self.read_count}")
         logger.info(f"Total valid records: {len(self.data)}")
 
-        logger.debug("------------------All Valid Records------------------")
+        logger.info("------------------All Valid Records------------------")
         for _, person in self.data.items():
-            logger.debug(person)
-        logger.debug("------------------All Valid Records------------------")
+            logger.info(person)
+        logger.info("------------------All Valid Records------------------")
 
         logger.info(f"Total invalid records: {self.invalid_count}")
         logger.info(f"Dropped duplicate records: {self.duplicate_count}")
