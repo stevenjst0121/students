@@ -31,7 +31,7 @@ def setup_logging():
     logger.addHandler(console_handler)
 
     # Configure a file output
-    file_handler = logging.FileHandler(LOG_FILE_PATH, mode="w")
+    file_handler = logging.FileHandler(LOG_FILE_PATH, mode="w", encoding="Utf-8")
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.DEBUG)
     logger.addHandler(file_handler)

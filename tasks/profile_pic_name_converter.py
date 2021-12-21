@@ -54,11 +54,11 @@ class DataManager:
                 profile_filename = str(row["2寸蓝底照片"]) if not row.isnull()["2寸蓝底照片"] else None
 
                 person = Person(
-                    series=int(row["序号"]),
+                    series=row["序号"],
                     name=name,
                     sex=Sex.MALE if row["性别"] == "男" else Sex.FEMALE,
                     job=row["职业"],
-                    mobile=int(row["手机号"]),
+                    mobile=row["手机号"],
                     wechat=row["微信昵称"],
                     email=row["电子邮件"],
                     id=id,
@@ -97,6 +97,8 @@ class DataManager:
 
                 else:
                     self.data[person.id] = person
+
+                raise Exception("test exception")
             except KeyError as e:
                 logger.error(
                     f"Column name mismatch! Check whether the column names have been changed in {JSJ_DATA_FILENAME}."
@@ -104,6 +106,7 @@ class DataManager:
                 raise e
             except Exception as e:
                 logger.exception(e)
+                raise e
 
     def generate_output_files(self):
         self._mk_dir_if_not_exist(OUTPUT_PATH)
