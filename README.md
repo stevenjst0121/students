@@ -1,5 +1,22 @@
+## Summary
 
-## Data
+The tool helps to read into a downloaded registration spread sheet from JSJ, and convert the profile picture file names according to the register's Name or ID.
+
+## How To Run
+
+- Make sure `python3` is installed from https://www.python.org/downloads/
+- Install `pandas` and `openpyxl` by running
+```bash
+python3 -m pip install pandas
+python3 -m pip install openpyxl
+```
+- Run the `profile_pic_name_converter.py` file
+```bash
+cd students
+python3 tasks/profile_pic_name_converter.py
+```
+
+## Data Input
 
 The application expects the `data` folder to look like the following:
 ```txt
