@@ -97,8 +97,6 @@ class DataManager:
 
                 else:
                     self.data[person.id] = person
-
-                raise Exception("test exception")
             except KeyError as e:
                 logger.error(
                     f"Column name mismatch! Check whether the column names have been changed in {JSJ_DATA_FILENAME}."
@@ -161,6 +159,8 @@ class DataManager:
             os.mkdir(path)
 
     def _copy_profile_files(self, id_only: bool):
+        logger = get_logger()
+
         if id_only:
             self._mk_dir_if_not_exist(OUTPUT_PATH_ID_PICTURES)
             for _, person in self.data.items():
@@ -173,7 +173,10 @@ class DataManager:
 
                 src_file_path = os.path.join(PICTURES_PATH, profile.raw_filename)
                 dst_file_path = os.path.join(OUTPUT_PATH_ID_PICTURES, profile.id_filename)
-                shutil.copyfile(src=src_file_path, dst=dst_file_path)
+                try:
+                    shutil.copyfile(src=src_file_path, dst=dst_file_path)
+                except Exception as e:
+                    logger.exception(e)
         else:
             self._mk_dir_if_not_exist(OUTPUT_PATH_NAME_ID_PICTURES)
             for _, person in self.data.items():
@@ -186,7 +189,10 @@ class DataManager:
 
                 src_file_path = os.path.join(PICTURES_PATH, profile.raw_filename)
                 dst_file_path = os.path.join(OUTPUT_PATH_NAME_ID_PICTURES, profile.name_id_filename)
-                shutil.copyfile(src=src_file_path, dst=dst_file_path)
+                try:
+                    shutil.copyfile(src=src_file_path, dst=dst_file_path)
+                except Exception as e:
+                    logger.exception(e)
 
     def log_read_summary(self):
         logger = get_logger()
@@ -206,8 +212,6 @@ class DataManager:
 
 
 def run():
-    logger = get_logger()
-
     # Initialize Data Manager
     data_manager = DataManager()
     data_manager.read_from_file(JSJ_DATA_FILEPATH)
