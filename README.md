@@ -2,12 +2,14 @@
 ## Data
 
 The application expects the `data` folder to look like the following:
+```txt
 data
 |- jsj_data.xlsx
 |- pictures
     |- *.jpg
     |- *.jpeg
     |- ...
+```
 
 ## Requirements
 

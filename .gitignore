@@ -1,5 +1,6 @@
 # Ignore data
-data/
+data
+out
 
 # Ignore logs
 *.log

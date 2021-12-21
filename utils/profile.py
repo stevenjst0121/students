@@ -1,13 +1,8 @@
-import os
-
-from utils.logger import get_logger
-
-
 class Profile:
-    def __init__(self, name: str, id: int, raw_filename: str):
+    def __init__(self, name: str, id_: int, raw_filename: str):
         # Input
         self.name = name
-        self.id = id
+        self.id = id_
         self.raw_filename = raw_filename
 
         # Output

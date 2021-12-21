@@ -8,6 +8,9 @@ class Sex(Enum):
     FEMALE = 1
 
 
+HEADER = []
+
+
 class Person:
     def __init__(
         self,
@@ -18,7 +21,7 @@ class Person:
         mobile: int,
         wechat: str,
         email: str,
-        id: str,
+        id_: str,
         city: str,
         address: str,
         profile: Profile,
@@ -30,14 +33,15 @@ class Person:
         self.mobile = mobile
         self.wechat = wechat
         self.email = email
-        self.id = id
+        self.id = id_
         self.city = city
         self.address = address
         self.profile = profile
 
     def __repr__(self) -> str:
         return (
-            f"series={self.series}, name={self.name}, sex={self.sex}, job={self.job}, mobile={self.mobile}, "
+            f"series={self.series}, name={self.name}, sex={self.sex}, "
+            f"job={self.job}, mobile={self.mobile}, "
             f"wechat={self.wechat}, email={self.email}, id={self.id}, city={self.city}, "
             f"address={self.address}, profile={self.profile}"
         )

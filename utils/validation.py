@@ -1,8 +1,5 @@
-from math import log10, ceil
-
-
-def is_id_valid(id: str) -> bool:
-    if type(id) != str or len(id) != 18:
+def is_id_valid(id_: str) -> bool:
+    if type(id_) != str or len(id_) != 18:
         return False
 
     return True
