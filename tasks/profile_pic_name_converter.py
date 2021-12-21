@@ -84,7 +84,7 @@ class DataManager:
                 # De-duplication
                 if person.id in self.data:
                     old_series = self.data[person.id].series
-                    if person.series > old_series:
+                    if person.series > old_series and person.profile.is_valid():
                         logger.info(
                             f"Overwriting duplicate record, old series={old_series}, "
                             f"new series={person.series}, {person}"
