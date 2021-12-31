@@ -28,7 +28,9 @@ class DataManager:
             "身份证号码",
             "所在城市",
             "邮寄地址",
-            "2寸蓝底照片",
+            "20位订单编号",
+            "2寸蓝底照片（原）",
+            "2寸蓝底照片（新）",
         ]
 
         self.data = {}  # id -> person
@@ -64,6 +66,7 @@ class DataManager:
                     id=id,
                     city=row["所在城市"],
                     address=row["邮寄地址"],
+                    order_id=row["20位订单编号"],
                     profile=Profile(name, id, profile_filename),
                 )
 
@@ -114,8 +117,8 @@ class DataManager:
         self._copy_profile_files(id_only=True)
 
         # Name + ID
-        self._generate_xlsx_file(id_only=False)
-        self._copy_profile_files(id_only=False)
+        # self._generate_xlsx_file(id_only=False)
+        # self._copy_profile_files(id_only=False)
 
     def _generate_xlsx_file(self, id_only: bool):
         if id_only:
@@ -144,7 +147,9 @@ class DataManager:
                 "身份证号码": person.id,
                 "所在城市": person.city,
                 "邮寄地址": person.address,
-                "2寸蓝底照片": (
+                "20位订单编号": person.order_id,
+                "2寸蓝底照片（原）": person.profile.raw_filename,
+                "2寸蓝底照片（新）": (
                     person.profile.id_filename if id_only else person.profile.name_id_filename
                 ),
             }

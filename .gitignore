@@ -1,6 +1,7 @@
 # Ignore data
 data
 out
+out.zip
 
 # Ignore logs
 *.log
