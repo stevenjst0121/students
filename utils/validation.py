@@ -10,6 +10,13 @@ def is_name_valid(name: str) -> bool:
         return False
 
     for _char in name:
-        if not "\u4e00" <= _char <= "\u9fa5":
+        if not "\u4e00" <= _char <= "\u9fa5" and _char != "·":
             return False
     return True
+
+
+def is_mobile_valid(mobile: int) -> bool:
+    if mobile is None or type(mobile) != int:
+        return False
+
+    return len(str(mobile)) == 11
